@@ -23,6 +23,9 @@ namespace Battle_Blocks
         public const int SCREEN_HEIGHT = 480;
         public static Random random;
 
+        Player player1;
+        Player player2;
+
         public BattleBlocks()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -40,19 +43,23 @@ namespace Battle_Blocks
         /// </summary>
         protected override void Initialize()
         {
+            int blockWidth = 20;
+            int blockHeight = SCREEN_HEIGHT / 8;
+            float offsetX = SCREEN_WIDTH / 2 - blockWidth * 1.5f;
 
-            for (int x = 0; x < 15; x++)
+            for (int x = 0; x < 3; x++)
             {
-                for (int y = 0; y < 15; y++)
+                for (int y = 0; y < 8; y++)
                 {
-                    Block block = new Block(50, 20);
-                    block.Position = new Vector2(x * 80 + 40, y * 80 + 40);
-                    block.Color = Color.Gray;
+                    Block block = new Block(blockWidth, blockHeight);
+                    block.Position = new Vector2(offsetX + x * blockWidth + block.Origin.Y, y * blockHeight + block.Origin.Y);
                 }
             }
 
             TriggerBlock triggerBlock = new TriggerBlock(32, 32);
-            triggerBlock.Position = new Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - triggerBlock.Origin.Y);
+            triggerBlock.Position = new Vector2(20, SCREEN_HEIGHT + triggerBlock.Origin.Y);
+
+           
 
             List<Color> colors = new List<Color>();
             colors.Add(Color.PaleTurquoise);
@@ -78,7 +85,7 @@ namespace Battle_Blocks
             colors.Add(Color.Orchid);
             colors.Add(Color.Orange);
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 2; i++)
 			{
 			    Ball ball = new Ball();
                 
@@ -86,11 +93,13 @@ namespace Battle_Blocks
                 float fullCircle = MathHelper.Pi * 2;
                 float angle = fullCircle * (float)i / 20;
 
-                ball.Position = new Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 20);
+                ball.Position = new Vector2(SCREEN_WIDTH / 2 - 300, SCREEN_HEIGHT / 2 - 20);
                 ball.Velocity = new Vector2((float)Math.Sin(angle), (float)Math.Cos(angle)) * 5;
                 ball.Position += new Vector2((float)Math.Sin(angle), (float)Math.Cos(angle)) * 20;
                 ball.Color = colors[i];
 			}
+
+            
              base.Initialize();
         }
 
@@ -105,6 +114,10 @@ namespace Battle_Blocks
 
             Ball.texture = Content.Load<Texture2D>("ball");
             Block.texture = Content.Load<Texture2D>("block");
+            Paddle.texture = Content.Load<Texture2D>("paddle");
+
+            player1 = new Player(PlayerIndex.One, Color.DarkGreen);
+            player2 = new Player(PlayerIndex.Two, Color.Red);
         }
 
         /// <summary>
@@ -127,6 +140,11 @@ namespace Battle_Blocks
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
+            Vibration.UpdateVibrations(gameTime);
+
+            player1.Update(gameTime);
+            player2.Update(gameTime);
+
             for (int i = Actor.actors.Count - 1; i >= 0; i--)
             {
                 Actor actor = Actor.actors[i];
@@ -141,7 +159,7 @@ namespace Battle_Blocks
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-           // graphics.GraphicsDevice.Clear(Color.Black);
+            graphics.GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();
             Actor.DrawActors(spriteBatch);
