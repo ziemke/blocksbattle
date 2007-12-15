@@ -12,7 +12,7 @@ namespace Battle_Blocks.Classes
         private int width;
         private int height;
         public float[] CornerMarkes;
-        private bool isDestructable = false;
+        private bool isDestructable = true;
         private int health = 100;
         #endregion
 
@@ -80,6 +80,8 @@ namespace Battle_Blocks.Classes
                 Vector2 direction = Vector2.Normalize(corners[i] - this.Position);
                 this.CornerMarkes[i] = (float)Math.Atan2(direction.Y, direction.X) + MathHelper.Pi;
             }
+
+            this.Color = new Color(255, 255, 0);
         }
         #endregion
 

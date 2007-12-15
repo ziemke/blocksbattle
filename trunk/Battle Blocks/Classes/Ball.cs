@@ -88,16 +88,23 @@ namespace Battle_Blocks.Classes
         #region Check Wall Collision
         private void CheckWallCollision()
         {
-            if (this.position.X < this.Radius)
+            if (this.position.X < 0)
             {
-                this.position.X = this.Radius;
-                this.velocity.X *= -1;
+
+                //this.position.X = this.Radius;
+                //this.velocity.X *= -1;
+                Player.lives--;
+                actors.Remove(this);
+                Vibration.SetVibration(0.45f, 0.45f, new TimeSpan(0, 0, 0, 0, 300), PlayerIndex.One);
             }
 
-            if (this.position.X > BattleBlocks.SCREEN_WIDTH - this.Radius)
+            if (this.position.X > BattleBlocks.SCREEN_WIDTH)
             {
-                this.position.X = BattleBlocks.SCREEN_WIDTH - this.Radius;
-                this.velocity.X *= -1;
+                //this.position.X = BattleBlocks.SCREEN_WIDTH - this.Radius;
+                //this.velocity.X *= -1;
+                Player.lives--;
+                actors.Remove(this);
+                Vibration.SetVibration(0.45f, 0.45f, new TimeSpan(0, 0, 0, 0, 300), PlayerIndex.One);
             }
 
             if (this.position.Y < this.Radius)
