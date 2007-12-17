@@ -9,9 +9,10 @@ namespace Battle_Blocks.Classes
     class Player
     {
         #region Fields
+        public static Dictionary<PlayerIndex, Player> players;
         public static int lives;
 
-        private Paddle paddle;
+        public Paddle paddle;
         private Color color;
         private int score;
         PlayerIndex playerIndex;
@@ -37,21 +38,29 @@ namespace Battle_Blocks.Classes
             get { return paddleSpeed; }
             set { paddleSpeed = value; }
         }
+
+        public Player this[PlayerIndex playerIndex]
+        {
+            get { return players[playerIndex]; }
+        }
         #endregion
 
         #region Constructors
         static Player()
         {
             lives = 3;
+            players = new Dictionary<PlayerIndex, Player>();
         }
 
         public Player(PlayerIndex playerIndex, Color color)
         {
             this.playerIndex = playerIndex;
             this.color = color;
-            paddle = new Paddle(color);
+            paddle = new Paddle(playerIndex, color);
             this.ResetPaddlePosition();
             paddleSpeed = 5;
+
+            players.Add(playerIndex, this);
         }
         #endregion
 
@@ -65,7 +74,7 @@ namespace Battle_Blocks.Classes
             switch (playerIndex)
             {
                 case PlayerIndex.One:
-                    posX = paddle.Origin.X + 15;
+                   posX = paddle.Origin.X + 15;
                     break;
                 case PlayerIndex.Two:
                     posX = BattleBlocks.SCREEN_WIDTH - paddle.Origin.X - 15;
@@ -77,10 +86,28 @@ namespace Battle_Blocks.Classes
         }
         #endregion
 
+        #region AddScore
+        public static void AddScore(PlayerIndex playerIndex, int score)
+        {
+            players[playerIndex].Score += score;
+        }
+        #endregion
+
         #region Update
         public void Update(GameTime gameTime)
         {
             paddle.Position -= new Vector2(0, GamePad.GetState(playerIndex).ThumbSticks.Left.Y) * paddleSpeed;
+            for (int i = Actor.actors.Count - 1; i >= 0; i--)
+            {
+                Ball ball = Actor.actors[i] as Ball;
+                if (ball == null) continue;
+                if (ball.PlayerIndex != this.playerIndex) continue;
+                ball.speedModifier = MathHelper.Clamp(1 + GamePad.GetState(playerIndex).ThumbSticks.Right.X * 2, 0.3f, 2.5f);
+                ball.directionModifier = new Vector2(0, -(GamePad.GetState(playerIndex).ThumbSticks.Right.Y * 5));
+
+                if (GamePad.GetState(playerIndex).Buttons.A == ButtonState.Pressed && ball.Idle)
+                    ball.Idle = false;
+            }
         }
         #endregion
         #endregion

@@ -9,6 +9,7 @@ namespace Battle_Blocks.Classes
     {
         #region Fields
         public static Texture2D texture;
+        public static List<Color> colors;
         private int width;
         private int height;
         public float[] CornerMarkes;
@@ -75,13 +76,23 @@ namespace Battle_Blocks.Classes
 
 
             this.CornerMarkes = new float[4];
-            for (int i = 1; i < CornerMarkes.Length; i++)
+            for (int i = 0; i < CornerMarkes.Length; i++)
             {
                 Vector2 direction = Vector2.Normalize(corners[i] - this.Position);
                 this.CornerMarkes[i] = (float)Math.Atan2(direction.Y, direction.X) + MathHelper.Pi;
             }
 
-            this.Color = new Color(255, 255, 0);
+            this.Color = colors[BattleBlocks.random.Next(0, colors.Count)];
+        }
+
+        static Block()
+        {
+            colors = new List<Color>();
+            colors.Add(Color.Green);
+            colors.Add(Color.Blue);
+            colors.Add(Color.Olive);
+            colors.Add(Color.Purple);
+            
         }
         #endregion
 
@@ -102,11 +113,6 @@ namespace Battle_Blocks.Classes
 
                 byte g = (byte)MathHelper.Lerp(0, 255, (float)this.Health / 100);
                 this.Color = new Color(255, g, 0, 255);
-
-                if (this.Health <= 0)
-                {
-                    actors.Remove(this);
-                }
             }
         }
         #endregion

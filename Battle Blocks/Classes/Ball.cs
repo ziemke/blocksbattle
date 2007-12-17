@@ -9,6 +9,11 @@ namespace Battle_Blocks.Classes
     {
         #region Fields
         public static Texture2D texture;
+        PlayerIndex playerIndex;
+        PlayerIndex playerIndexOriginal;
+        public float speedModifier = 1f;
+        public Vector2 directionModifier = new Vector2(1);
+        public bool Idle = true;
         #endregion
 
         #region Properties
@@ -27,12 +32,24 @@ namespace Battle_Blocks.Classes
               (int)this.Radius * 2);
             }
         }
+
+
+        public PlayerIndex PlayerIndex
+        {
+            get { return playerIndex; }
+            set { 
+                playerIndex = value;
+                this.Color = Player.players[playerIndex].Color;
+            }
+        }
         #endregion
 
         #region Constructors
-        public Ball()
+        public Ball(PlayerIndex playerIndex)
         {
             this.Color = Color.Orange;
+            this.playerIndex = playerIndex;
+            this.playerIndexOriginal = playerIndex;
         }
         #endregion
 
@@ -43,7 +60,11 @@ namespace Battle_Blocks.Classes
             this.CheckBallCollision();  
             this.CheckWallCollision();
             this.CheckBlockCollision();
-            this.Move();
+
+            if (Idle)
+                this.Position = Player.players[playerIndex].paddle.BallStartPosition;
+            else
+               this.Move(this.speedModifier, this.directionModifier);
         }
         #endregion
 
@@ -90,21 +111,18 @@ namespace Battle_Blocks.Classes
         {
             if (this.position.X < 0)
             {
-
-                //this.position.X = this.Radius;
-                //this.velocity.X *= -1;
                 Player.lives--;
                 actors.Remove(this);
                 Vibration.SetVibration(0.45f, 0.45f, new TimeSpan(0, 0, 0, 0, 300), PlayerIndex.One);
+                BattleBlocks.StartNewBall(playerIndexOriginal);
             }
 
             if (this.position.X > BattleBlocks.SCREEN_WIDTH)
             {
-                //this.position.X = BattleBlocks.SCREEN_WIDTH - this.Radius;
-                //this.velocity.X *= -1;
                 Player.lives--;
                 actors.Remove(this);
                 Vibration.SetVibration(0.45f, 0.45f, new TimeSpan(0, 0, 0, 0, 300), PlayerIndex.One);
+                BattleBlocks.StartNewBall(playerIndexOriginal);
             }
 
             if (this.position.Y < this.Radius)
@@ -133,7 +151,6 @@ namespace Battle_Blocks.Classes
                 {
                     Vector2 direction = Vector2.Normalize(this.Position - block.Position);
                     float angle = (float)Math.Atan2(direction.Y, direction.X) + MathHelper.Pi;
-
                     if (angle >= block.CornerMarkes[0] && angle <= block.CornerMarkes[1])
                     {
                         this.velocity.Y = -Math.Abs(this.velocity.Y);
@@ -151,6 +168,12 @@ namespace Battle_Blocks.Classes
                         this.velocity.X = -Math.Abs(this.velocity.X);
                     }
                     block.ProcessCollision();
+
+                    if (block.Health <= 0)
+                    {
+                        actors.Remove(block);
+                        Player.AddScore(this.playerIndex, 10);
+                    }
                 }
             }
         }
