@@ -10,6 +10,7 @@ namespace Battle_Blocks.Classes
         #region Fields
         public static Texture2D texture;
         public float[] CornerMarkes;
+        public PlayerIndex playerIndex;
         #endregion
 
         #region Properties
@@ -27,13 +28,30 @@ namespace Battle_Blocks.Classes
                     texture.Height);
             }
         }
+
+        public Vector2 BallStartPosition
+        {
+            get
+            {
+                switch (playerIndex)
+                {
+                    case PlayerIndex.One:
+                        return this.Position + new Vector2(this.Origin.X * 2, 0);
+                    case PlayerIndex.Two:
+                        return this.Position - new Vector2(this.Origin.X * 2, 0);
+                    default:
+                        return Vector2.Zero;
+                }
+            }
+        }
         #endregion
 
         #region Constructors
-        public Paddle(Color color)
+        public Paddle(PlayerIndex playerIndex, Color color)
         {
            
             this.Color = color;
+            this.playerIndex = playerIndex;
 
             Vector2[] corners = new Vector2[4];
             corners[0] = new Vector2(this.Position.X - this.Origin.X, this.Position.Y - this.Origin.Y);
@@ -43,7 +61,7 @@ namespace Battle_Blocks.Classes
 
 
             this.CornerMarkes = new float[4];
-            for (int i = 1; i < CornerMarkes.Length; i++)
+            for (int i = 00; i < CornerMarkes.Length; i++)
             {
                 Vector2 direction = Vector2.Normalize(corners[i] - this.Position);
                 this.CornerMarkes[i] = (float)Math.Atan2(direction.Y, direction.X) + MathHelper.Pi;
@@ -88,6 +106,8 @@ namespace Battle_Blocks.Classes
                     {
                         ball.Velocity = new Vector2(-Math.Abs(ball.Velocity.X), ball.Velocity.Y);
                     }
+
+                     ball.PlayerIndex = this.playerIndex;
                 }
             }
         }

@@ -89,6 +89,13 @@ namespace Battle_Blocks.Classes
         }
         #endregion
 
+        #region Move
+        public void Move(float speedModifier, Vector2 directionModifier)
+        {
+            this.position += velocity * speedModifier + directionModifier;
+        }
+        #endregion
+
         #region SetRandomPosition
         public void SetRandomPosition()
         {
